@@ -24,7 +24,6 @@
                 echo("<h2>{$code['title']}</h2><p>by <strong>{$code['name']}</strong></p>");
                 // only public codes can be shared
                 if ($code['privacy'] == 1)
-                    echo $_SERVER['SCRIPT_FILE'];
                     echo("<p>Share Link: <a href=\"http://localhost/SimpleShare/code.php?id={$code['id']}\">http://localhost/SimpleShare/code.php?id={$code['id']}</a></p>");
                 echo "<pre class=\"prettyprint\">" . htmlspecialchars($code['code']) . "</pre>";
             } else {

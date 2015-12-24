@@ -14,7 +14,7 @@ $error = false;
 
 if($_SERVER['REQUEST_METHOD']=='POST') {
     if(!empty($_POST['title'])){
-        $title = trim(mysql_prep($_POST['title']));
+        $title = trim(mysql_prep($_POST['title'], $connection));
         if(!preg_match("/^[a-zA-Z0-9.-_ ]*$/", $title)) {
             $titleError = "Only letters, period, numbers and spaces are allowed!";
             $error = true;
@@ -30,7 +30,7 @@ if($_SERVER['REQUEST_METHOD']=='POST') {
         $privacy = $_POST['privacy'];
     } else {
         if(!empty($_POST['name'])){
-            $name = trim(mysql_prep($_POST['name']));
+            $name = trim(mysql_prep($_POST['name'], $connection));
             if(!preg_match("/^[a-zA-Z. ]*$/", $name)) {
                 $nameError = "Only letters, period and spaces are allowed!";
                 $error = true;
@@ -42,7 +42,7 @@ if($_SERVER['REQUEST_METHOD']=='POST') {
     }
 
     if(!empty($_POST['code'])) {
-        $code = $_POST['code'];
+        $code = mysql_prep($_POST['code'], $connection);
     } else {
         $codeError = "Code field is required!";
         $error = true;
@@ -87,7 +87,7 @@ if($_SERVER['REQUEST_METHOD']=='POST') {
                         value = "<?php echo $title; ?>" />
                 </div>
                 <?php if(!logged_in()): ?>
-                <div class="from-group">
+                <div class="form-group">
                     <label for="name">Your Name:</label>  <span class="error"><?php echo $nameError; ?></span>
                     <input type="text" name="name" id="name" class="form-control" placeholder="Your Full Name"
                            value = "<?php echo $name; ?>"/>
@@ -106,6 +106,8 @@ if($_SERVER['REQUEST_METHOD']=='POST') {
                             <option value="java">Java</option>
                             <option value="js">JavaScript</option>
                             <option value="php">PHP</option>
+                            <option value="python">Python</option>
+                            <option value="other">Others</option>
                         </select>
                     </div>
                     <?php if(logged_in()): ?>

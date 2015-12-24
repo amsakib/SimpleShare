@@ -1,6 +1,6 @@
 # SimpleShare
 A very simple code sharing application written in PHP. I created this while I was learning PHP a few years ago. 
-This application uses Procedural PHP and has a lot of bugs (i.e. sharing codes will single quotes will break). I was noob that days ;-P
+This application uses Procedural PHP and has a lot of bugs. I was noob that days ;-P
 Will convert it to OOP soon.
 
 How to use
