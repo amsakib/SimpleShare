@@ -15,7 +15,7 @@ if($_SERVER['REQUEST_METHOD']=='POST'){
         $usernameError = "User Name is required!";
         $error = true;
     } else {
-        $username = trim(mysql_prep($_POST['username']));
+        $username = trim(mysql_prep($_POST['username'], $connection));
 
         if (!preg_match("/^[a-zA-Z0-9]*$/", $username)) {
             $usernameError = "Only letters and numbers are allowed!";
@@ -27,7 +27,7 @@ if($_SERVER['REQUEST_METHOD']=='POST'){
         $passwordError = "Password is required!";
         $error = true;
     } else {
-        $password = trim(mysql_prep($_POST['password']));
+        $password = trim(mysql_prep($_POST['password'], $connection));
         $len = strlen($password);
         if($len <5 || $len > 12) {
             $passwordError = "Password length must be greater than 4 and less than 13!";

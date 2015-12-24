@@ -43,6 +43,7 @@ if($_SERVER['REQUEST_METHOD']=='POST') {
 
     if(!empty($_POST['code'])) {
         $code = mysql_prep($_POST['code'], $connection);
+        $code = htmlentities($code);
     } else {
         $codeError = "Code field is required!";
         $error = true;
