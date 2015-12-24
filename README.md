@@ -7,18 +7,20 @@ How to use
 ---
 1. Edit includes/constants.php with database constants
 2. Database Schema used :
-	Users (id 	int(11) PRIMARY KEY	auto_increment, 
-		fullname 	varchar(100),
-		username 	varchar(100),
-		password 	varchar(40),
-		email 	varchar(100)
-	);
+```SQL
+Users (id 	int(11) PRIMARY KEY	auto_increment, 
+	fullname 	varchar(100),
+	username 	varchar(100),
+	password 	varchar(40),
+	email 	varchar(100)
+);
 
-	Codes (id 	int(11) PRIMARY KEY auto_increment,
-		user_id 	int(11),
-		title 	varchar(255),
-		name 	varchar(100),
-		code 	text,
-		lang 	varchar(10),
-		privacy 	tinyint(1)
-	);
+Codes (id 	int(11) PRIMARY KEY auto_increment,
+	user_id 	int(11),
+	title 	varchar(255),
+	name 	varchar(100),
+	code 	text,
+	lang 	varchar(10),
+	privacy 	tinyint(1)
+);
+```
