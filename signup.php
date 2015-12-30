@@ -1,8 +1,12 @@
 <?php
 require_once('includes/session.php');
-require_once('includes/connections.php');
+require_once('includes/database.php');
+require_once('includes/user.php');
+
 require_once('includes/functions.php');
-if(logged_in()) redirect_to('index.php');
+
+if($session->is_logged_in()) redirect_to('index.php');
+
 include('includes/header.php');
 ?>
 <?php
@@ -14,7 +18,7 @@ if($_SERVER['REQUEST_METHOD']=='POST'){
         $fullnameError = "Full Name is required!";
         $error = true;
     }else {
-        $fullname = trim(mysql_prep($_POST['fullName'], $connection));
+        $fullname = trim($database->escape_string($_POST['fullName']));
 
         if (!preg_match("/^[a-zA-Z. ]*$/",$fullname)) {
             $fullnameError = "Only letters, period and white spaces are allowed!";
@@ -26,7 +30,7 @@ if($_SERVER['REQUEST_METHOD']=='POST'){
         $usernameError = "User Name is required!";
         $error = true;
     } else {
-        $username = trim(mysql_prep($_POST['username'], $connection));
+        $username = trim($database->escape_string($_POST['username']));
 
         if (!preg_match("/^[a-zA-Z0-9]*$/", $username)) {
             $usernameError = "Only letters and numbers are allowed!";
@@ -38,11 +42,14 @@ if($_SERVER['REQUEST_METHOD']=='POST'){
         $passwordError = "Password is required!";
         $error = true;
     } else {
-        $password = trim(mysql_prep($_POST['password'], $connection));
+        $password = trim($database->escape_string($_POST['password']));
         $len = strlen($password);
         if($len <5 || $len > 12) {
             $passwordError = "Password length must be greater than 4 and less than 13!";
             $error = true;
+        }
+        else {
+            $password = sha1($password);
         }
     }
 
@@ -50,7 +57,7 @@ if($_SERVER['REQUEST_METHOD']=='POST'){
         $emailError = "Email is required!";
         $error = true;
     } else {
-        $email = trim(mysql_prep($_POST['email'], $connection));
+        $email = trim($database->escape_string($_POST['email']));
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             $emailError = "Invalid email format";
             $error = true;
@@ -58,19 +65,22 @@ if($_SERVER['REQUEST_METHOD']=='POST'){
     }
 
     if(!$error) {
-        $dup = mysqli_query($connection, "SELECT username FROM users WHERE username= '{$username}'");
-        if(mysqli_num_rows($dup)>0) {
+        $dup = User::find_by_sql("SELECT * FROM users WHERE username= '{$username}'");
+
+        if(!empty($dup)) {
             $usernameError = "Username Already Exists!";
-        } else {
-            $dup = mysqli_query($connection, "SELECT email FROM users WHERE email = '{$email}'");
-            if(mysqli_num_rows($dup) > 0 ){
+        }
+        else {
+            $dup = User::find_by_sql("SELECT * FROM users WHERE email = '{$email}'");
+            if(!empty($dup)){
                 $emailError = "Email id already used!";
             } else {
                 $query = "INSERT INTO users (fullname, username, password, email) VALUES "
                     . "('{$fullname}', '{$username}', '". sha1($password) ."', '{$email}'  )";
-                $result = mysqli_query($connection, $query);
-                confirm_query($result);
-
+                
+                $user = new User(0, $fullname, $username, $password, $email);
+                User::create_user($user);
+                $session->set_message('You signed up successfully! Please login.');
                 redirect_to('signin.php');
 
             }

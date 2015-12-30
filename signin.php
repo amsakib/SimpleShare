@@ -1,8 +1,13 @@
 <?php
 require_once('includes/session.php');
-require_once('includes/connections.php');
+require_once('includes/database.php');
+require_once('includes/user.php');
+
 require_once('includes/functions.php');
-if(logged_in()) redirect_to('index.php');
+
+if($session->is_logged_in())
+    redirect_to('index.php');
+
 include('includes/header.php');
 ?>
 <?php
@@ -15,7 +20,7 @@ if($_SERVER['REQUEST_METHOD']=='POST'){
         $usernameError = "User Name is required!";
         $error = true;
     } else {
-        $username = trim(mysql_prep($_POST['username'], $connection));
+        $username = trim($database->escape_string($_POST['username']));
 
         if (!preg_match("/^[a-zA-Z0-9]*$/", $username)) {
             $usernameError = "Only letters and numbers are allowed!";
@@ -27,7 +32,7 @@ if($_SERVER['REQUEST_METHOD']=='POST'){
         $passwordError = "Password is required!";
         $error = true;
     } else {
-        $password = trim(mysql_prep($_POST['password'], $connection));
+        $password = trim($database->escape_string($_POST['password']));
         $len = strlen($password);
         if($len <5 || $len > 12) {
             $passwordError = "Password length must be greater than 4 and less than 13!";
@@ -36,31 +41,23 @@ if($_SERVER['REQUEST_METHOD']=='POST'){
     }
 
     if(!$error) {
-        $query = "SELECT id, fullname, username FROM users ";
-        $query .= "WHERE username = '" . $username . "' ";
-        $query .= "AND password = '" . sha1($password) . "' ";
-        $query .= "LIMIT 1";
-        $result = mysqli_query($connection, $query);
-        confirm_query($result);
-        if(mysqli_num_rows($result) == 1) {
-            $user = mysqli_fetch_assoc($result);
-            $_SESSION['user_id'] = $user['id'];
-            $_SESSION['fullname'] = $user['fullname'];
-            $_SESSION['username'] = $user['username'];
-            $_SESSION['message'] = 'You are successfully signed in!';
-            redirect_to('index.php');
+        $user = User::authenticate($username, $password);
+        if(!$user) {
+            $message = "Username-Password combination does not match!";
         } else {
-            $message = "Username / Password does not exist!";
+            $session->login($user);
+            $session->set_message('You are successfully signed in!');
+            redirect_to('index.php');
         }
     }
 
 }
 ?>
     <div class="container">
-        <?php if(isset($_SESSION['message'])): ?>
+        <?php if($session->has_message()): ?>
             <div class="alert alert-success">
-                 <?php echo $_SESSION['message'];
-                unset($_SESSION['message']); ?>
+                 <?php echo $session->get_message();
+                $session->remove_message(); ?>
             </div>
         <?php endif; ?>
         <h2>Sign In to Simple Share!</h2>

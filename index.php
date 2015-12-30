@@ -1,7 +1,11 @@
 <?php
     require_once('includes/session.php');
-    require_once('includes/connections.php');
+    require_once('includes/database.php');
+    require_once('includes/code.php');
+
+    //require_once('includes/connections.php');
     require_once('includes/functions.php');
+
     include('includes/header.php');
 ?>
 
@@ -85,18 +89,18 @@ if($_SERVER['REQUEST_METHOD']=='POST') {
                 <div class="form-group">
                     <label>Code Title:</label> <span class="error"><?php echo $titleError; ?></span>
                     <input type="text" name="title" class="form-control" placeholder="Code Title"
-                        value = "<?php echo $title; ?>" />
+                        value = "<?php echo $title; ?>" required />
                 </div>
-                <?php if(!logged_in()): ?>
+                <?php if(!$session->is_logged_in()): ?>
                 <div class="form-group">
                     <label for="name">Your Name:</label>  <span class="error"><?php echo $nameError; ?></span>
                     <input type="text" name="name" id="name" class="form-control" placeholder="Your Full Name"
-                           value = "<?php echo $name; ?>"/>
+                           value = "<?php echo $name; ?>" required/>
                 </div>
                 <?php endif; ?>
                 <div class="form-group">
                     <label>Paste your code:</label>  <span class="error"><?php echo $codeError; ?></span>
-                    <textarea name="code" id="code" class="form-control code" rows="8" placeholder="Paste your code here!"><?php echo $code; ?></textarea>
+                    <textarea name="code" id="code" class="form-control code" rows="8" placeholder="Paste your code here!" required><?php echo $code; ?></textarea>
                 </div>
                 <div class="form-group form-inline">
                     <div class="form-group form-inline">
@@ -111,7 +115,7 @@ if($_SERVER['REQUEST_METHOD']=='POST') {
                             <option value="other">Others</option>
                         </select>
                     </div>
-                    <?php if(logged_in()): ?>
+                    <?php if($session->is_logged_in()): ?>
                     <div class="form-group form-inline">
                         <label>Privacy:</label>
                         <select class="form-control" name="privacy">
@@ -131,11 +135,11 @@ if($_SERVER['REQUEST_METHOD']=='POST') {
             <h3>Recent Shares</h3>
             <ul>
                 <?php
-                $query = "SELECT id, title FROM codes WHERE privacy = 1 ORDER by id DESC LIMIT 5";
-                $result = mysqli_query($connection, $query);
-                confirm_query($result);
-                while($code = mysqli_fetch_assoc($result)) {
-                    echo "<li><a href=\"code.php?id={$code['id']}\">{$code['title']}</a></li>";
+                $sql= "SELECT * FROM codes WHERE privacy = 1 ORDER by id DESC LIMIT 5";
+                $codes = Code::find_by_sql($sql);
+
+                foreach($codes as $code){
+                    echo "<li><a href=\"./code.php?id={$code->id}\">{$code->title}</a></li>";
                 }
                 ?>
             </ul>

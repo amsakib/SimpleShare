@@ -4,8 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Simple Share</title>
-    <link rel="stylesheet" href="style/default.css">
     <link rel="stylesheet" href="style/bootstrap.min.css">
+    <link rel="stylesheet" href="style/default.css">
+    <link href='https://fonts.googleapis.com/css?family=Raleway' rel='stylesheet' type='text/css'>
 
     <!--    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">-->
     <script src="https://google-code-prettify.googlecode.com/svn/loader/run_prettify.js"></script>
@@ -25,7 +26,7 @@
                 <li>
                     <a href="browse.php">Browse Codes</a>
                 </li>
-                <?php if (logged_in()): ?>
+                <?php if ($session->is_logged_in()): ?>
                 <li>
                     <a href="mycodes.php">My Codes</a>
                 </li>

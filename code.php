@@ -24,7 +24,8 @@
                 echo("<h2>{$code['title']}</h2><p>by <strong>{$code['name']}</strong></p>");
                 // only public codes can be shared
                 if ($code['privacy'] == 1)
-                    echo("<p>Share Link: <a href=\"http://localhost/SimpleShare/code.php?id={$code['id']}\">http://localhost/SimpleShare/code.php?id={$code['id']}</a></p>");
+                    // TODO: Convert static site name to dynamic
+                    echo("<p>Share Link: <a href=\"./code.php?id={$code['id']}\">http://localhost/SimpleShare/code.php?id={$code['id']}</a></p>");
                 echo "<pre class=\"prettyprint\">" . htmlspecialchars($code['code']) . "</pre>";
             } else {
                 echo "<div class=\"alert alert-danger\">Sorry! Either this link is invalid or you are not authorised to see this code!</div>";
