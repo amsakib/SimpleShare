@@ -5,7 +5,7 @@ Will convert it to OOP soon.
 
 How to use
 ---
-1. Edit includes/constants.php with database constants
+1. Edit includes/config.php with database constants
 2. Database Schema used :
 ```SQL
 Users (id 	int(11) PRIMARY KEY	auto_increment, 
