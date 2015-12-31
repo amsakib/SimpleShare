@@ -70,16 +70,6 @@ class User {
         $result_array = self::find_by_sql($sql);
         return !empty($result_array) ? array_shift($result_array) : false;
     }
-    public static function create_user($user) {
-        global $database;
-
-        $sql = "INSERT INTO users (fullname, username, password, email) VALUES ( '{$user->fullname}', '{$user->username}',";
-        $sql .= "'{$user->password}', '{$user->email}' )";
-
-        $database->query($sql);
-        $database->check_error();
-
-    }
 
 
     /**
@@ -93,5 +83,67 @@ class User {
             $record["password"], $record["email"] );
 
         return $object;
+    }
+
+
+    /*======================= DATA ACCESS | Non-Static =================*/
+
+    /**
+     * Update if the user is created, else Crete this user.
+     * Returns true if success else return false.
+     * @return bool
+     */
+    public function save() {
+        if($this->id == 0 || !isset($this->id) || $this->id == NULL) {
+            return $this->create();
+        }
+        else {
+            return $this->update();
+        }
+    }
+
+    /**
+     * Create User in Database.
+     * Returns true if succeeded else false
+     * @return bool
+     */
+    private function create() {
+        global $database;
+        $sql = "INSERT INTO users (fullname, username, password, email) VALUES ( ?, ?, ?, ?)";
+
+        $stmt = $database->prepare($sql);
+        $stmt->bind_param("ssss", $this->fullname, $this->username, $this->password, $this->email);
+        $stmt->execute();
+
+        if($stmt->affected_rows == 1) {
+            $this->id = $stmt->insert_id;
+            return true;
+        }
+        else {
+            return false;
+        }
+
+    }
+
+    /**
+     * Update this user in the database.
+     * Returns true if succeeded else false
+     * @return bool
+     */
+    private function update() {
+        global $database;
+
+        $sql = "UPDATE users SET fullname = ?, username = ?, password = ? , email = ? WHERE id = ?";
+
+        $stmt = $database->prepare($sql);
+        $stmt->bind_param("ssssi", $this->fullname, $this->username, $this->password, $this->email, $this->id);
+        $stmt->execute();
+
+        if($stmt->affected_rows == 1) {
+            return true;
+        }
+        else {
+            return false;
+        }
     }
 }

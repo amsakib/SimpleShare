@@ -6,10 +6,11 @@
     <title>Simple Share</title>
     <link rel="stylesheet" href="style/bootstrap.min.css">
     <link rel="stylesheet" href="style/default.css">
-    <link href='https://fonts.googleapis.com/css?family=Raleway' rel='stylesheet' type='text/css'>
+<!--    <link href='https://fonts.googleapis.com/css?family=Raleway' rel='stylesheet' type='text/css'>-->
 
-    <!--    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">-->
-    <script src="https://google-code-prettify.googlecode.com/svn/loader/run_prettify.js"></script>
+<!--    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">-->
+<!--    <script src="https://google-code-prettify.googlecode.com/svn/loader/run_prettify.js"></script>-->
+    <script src="js/run_prettify.js"></script>
 </head>
 <body>
 <!-- Navigation Bar-->

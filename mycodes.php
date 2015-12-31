@@ -1,22 +1,24 @@
 <?php
-require_once('includes/session.php');
-require_once('includes/connections.php');
 require_once('includes/functions.php');
-if(!logged_in()) redirect_to('browse.php');
+require_once('includes/session.php');
+require_once('includes/database.php');
+require_once('includes/code.php');
+require_once('includes/user.php');
+
+if(!$session->is_logged_in()) redirect_to('browse.php');
+
+$user = User::find_by_id($session->user_id);
+$codes = Code::find_by_user_id($user->id);
+
 include('includes/header.php');
 ?>
 
 <div class="container">
-    <h2>All codes shared by <?php echo $_SESSION['fullname']; ?></h2>
-    <?php
-        $query = "SELECT * FROM codes WHERE user_id = " . $_SESSION['user_id'] . " ORDER BY id DESC";
-        $result = mysqli_query($connection, $query);
-        confirm_query($result);        
-    ?>
+    <h2>All codes shared by <?php echo $user->fullname; ?></h2>
     <ul>
-        <?php while($code = mysqli_fetch_assoc($result)): ?>
-    <li><a href="http://localhost/simpleshare/code.php?id=<?php echo $code['id']; ?>"><?php echo $code['title']; ?></a></li>
-    <?php endwhile; ?>
+        <?php foreach($codes as $code): ?>
+        <li><a href="http://localhost/simpleshare/code.php?id=<?php echo $code->id; ?>"><?php echo $code->title; ?></a></li>
+        <?php endforeach; ?>
     </ul>
 </div>
 

@@ -3,23 +3,20 @@
     require_once('includes/database.php');
     require_once('includes/code.php');
 
-    //require_once('includes/connections.php');
     require_once('includes/functions.php');
 
     include('includes/header.php');
 ?>
 
 <?php
-$title = $name = $code = $lang = $privacy = "";
-$titleError = $nameError = $codeError =  "";
-$user_id = 0;
-$privacy = 1;
+$code = new Code();
+$titleError = $codeError =  "";
 $error = false;
 
 if($_SERVER['REQUEST_METHOD']=='POST') {
     if(!empty($_POST['title'])){
-        $title = trim(mysql_prep($_POST['title'], $connection));
-        if(!preg_match("/^[a-zA-Z0-9.-_ ]*$/", $title)) {
+        $code->title = trim($_POST['title']);
+        if(!preg_match("/^[a-zA-Z0-9.-_ ]*$/", $code->title)) {
             $titleError = "Only letters, period, numbers and spaces are allowed!";
             $error = true;
         }
@@ -28,60 +25,44 @@ if($_SERVER['REQUEST_METHOD']=='POST') {
         $error = true;
     }
 
-    if(logged_in()) {
-        $name = $_SESSION['fullname'];
-        $user_id = $_SESSION['user_id'];
-        $privacy = $_POST['privacy'];
-    } else {
-        if(!empty($_POST['name'])){
-            $name = trim(mysql_prep($_POST['name'], $connection));
-            if(!preg_match("/^[a-zA-Z. ]*$/", $name)) {
-                $nameError = "Only letters, period and spaces are allowed!";
-                $error = true;
-            }
-        } else {
-            $nameError = "Your Full Name is required!";
-            $error = true;
-        }
+    if($session->is_logged_in()) {
+        $code->user_id = $session->user_id;
+        $code->privacy = $_POST['privacy'];
     }
 
     if(!empty($_POST['code'])) {
-        $code = mysql_prep($_POST['code'], $connection);
-        $code = htmlentities($code);
+        $code->code = $_POST['code'];
     } else {
         $codeError = "Code field is required!";
         $error = true;
     }
 
-    $lang = $_POST['lang'];
+    $code->lang = $_POST['lang'];
 
     if(!$error) {
-        $query = "INSERT INTO codes (user_id, title, name, code, lang, privacy) VALUES "
-            . "( {$user_id}, '{$title}', '{$name}', '" . $code . "', '{$lang}', '{$privacy}' )";
-        echo $query;
-        if($result = mysqli_query($connection, $query)) {
-            $id = mysqli_insert_id($connection);
-            $_SESSION['message'] = 'Hoorah! Your code is saved and ready to share!';
-            header('Location: code.php?id=' . $id);
+        if($code->save()) {
+            $_SESSION['message'] = 'Horrah! Your code is saved and ready to share!';
+            header('Location: code.php?id=' . $code->id);
             exit;
         } else {
-            die('Error! ' . mysqli_error($connection) );
+            $database->check_error();
         }
     }
 }
 
 ?>
 
-
-
-
 <div class="container">
-    <?php if(isset($_SESSION['message'])): ?>
+
+    <?php if($session->has_message()): ?>
         <div class="alert alert-success">
-            <?php echo $_SESSION['message'];
-            unset($_SESSION['message']); ?>
+            <?php
+            echo $session->get_message();
+            $session->remove_message();
+            ?>
         </div>
     <?php endif; ?>
+
     <div class="row">
         <div class="col-md-8">
             <h2>Share your code</h2>
@@ -89,19 +70,15 @@ if($_SERVER['REQUEST_METHOD']=='POST') {
                 <div class="form-group">
                     <label>Code Title:</label> <span class="error"><?php echo $titleError; ?></span>
                     <input type="text" name="title" class="form-control" placeholder="Code Title"
-                        value = "<?php echo $title; ?>" required />
+                        value = "<?php echo $code->title; ?>" required />
                 </div>
-                <?php if(!$session->is_logged_in()): ?>
-                <div class="form-group">
-                    <label for="name">Your Name:</label>  <span class="error"><?php echo $nameError; ?></span>
-                    <input type="text" name="name" id="name" class="form-control" placeholder="Your Full Name"
-                           value = "<?php echo $name; ?>" required/>
-                </div>
-                <?php endif; ?>
+
                 <div class="form-group">
                     <label>Paste your code:</label>  <span class="error"><?php echo $codeError; ?></span>
-                    <textarea name="code" id="code" class="form-control code" rows="8" placeholder="Paste your code here!" required><?php echo $code; ?></textarea>
+                    <textarea name="code" id="code" class="form-control code" rows="8"
+                              placeholder="Paste your code here!" required><?php echo $code->code; ?></textarea>
                 </div>
+
                 <div class="form-group form-inline">
                     <div class="form-group form-inline">
                         <label>Language:</label>
@@ -135,7 +112,7 @@ if($_SERVER['REQUEST_METHOD']=='POST') {
             <h3>Recent Shares</h3>
             <ul>
                 <?php
-                $sql= "SELECT * FROM codes WHERE privacy = 1 ORDER by id DESC LIMIT 5";
+                $sql= "SELECT * FROM codes WHERE privacy = 1 ORDER by id DESC LIMIT 10";
                 $codes = Code::find_by_sql($sql);
 
                 foreach($codes as $code){
@@ -149,4 +126,3 @@ if($_SERVER['REQUEST_METHOD']=='POST') {
 </div>
 
 <?php include('includes/footer.php'); ?>
-

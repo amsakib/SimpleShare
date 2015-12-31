@@ -18,7 +18,6 @@ Users (id 	int(11) PRIMARY KEY	auto_increment,
 Codes (id 	int(11) PRIMARY KEY auto_increment,
 	user_id 	int(11),
 	title 	varchar(255),
-	name 	varchar(100),
 	code 	text,
 	lang 	varchar(10),
 	privacy 	tinyint(1)

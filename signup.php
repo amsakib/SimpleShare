@@ -18,7 +18,7 @@ if($_SERVER['REQUEST_METHOD']=='POST'){
         $fullnameError = "Full Name is required!";
         $error = true;
     }else {
-        $fullname = trim($database->escape_string($_POST['fullName']));
+        $fullname = trim($_POST['fullName']);
 
         if (!preg_match("/^[a-zA-Z. ]*$/",$fullname)) {
             $fullnameError = "Only letters, period and white spaces are allowed!";
@@ -30,7 +30,7 @@ if($_SERVER['REQUEST_METHOD']=='POST'){
         $usernameError = "User Name is required!";
         $error = true;
     } else {
-        $username = trim($database->escape_string($_POST['username']));
+        $username = trim($_POST['username']);
 
         if (!preg_match("/^[a-zA-Z0-9]*$/", $username)) {
             $usernameError = "Only letters and numbers are allowed!";
@@ -42,7 +42,7 @@ if($_SERVER['REQUEST_METHOD']=='POST'){
         $passwordError = "Password is required!";
         $error = true;
     } else {
-        $password = trim($database->escape_string($_POST['password']));
+        $password = trim($_POST['password']);
         $len = strlen($password);
         if($len <5 || $len > 12) {
             $passwordError = "Password length must be greater than 4 and less than 13!";
@@ -57,7 +57,7 @@ if($_SERVER['REQUEST_METHOD']=='POST'){
         $emailError = "Email is required!";
         $error = true;
     } else {
-        $email = trim($database->escape_string($_POST['email']));
+        $email = trim($_POST['email']);
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             $emailError = "Invalid email format";
             $error = true;
@@ -75,13 +75,16 @@ if($_SERVER['REQUEST_METHOD']=='POST'){
             if(!empty($dup)){
                 $emailError = "Email id already used!";
             } else {
-                $query = "INSERT INTO users (fullname, username, password, email) VALUES "
-                    . "('{$fullname}', '{$username}', '". sha1($password) ."', '{$email}'  )";
-                
-                $user = new User(0, $fullname, $username, $password, $email);
-                User::create_user($user);
-                $session->set_message('You signed up successfully! Please login.');
-                redirect_to('signin.php');
+                $user = new User( 0, $fullname, $username, $password, $email);
+                if($user->save()) {
+                    $session->set_message('You signed up successfully! Please login.');
+                    redirect_to('signin.php');
+                }
+                else {
+                    $error = true;
+                    die($database->check_error());
+                }
+
 
             }
         }
@@ -96,22 +99,22 @@ if($_SERVER['REQUEST_METHOD']=='POST'){
         <div class="form-group">
             <label for="fullName">Full Name:</label> <span class="error"><?php echo $fullnameError; ?></span>
             <input id="fullName" type="text" name="fullName" class="form-control" value="<?php echo $fullname; ?>"
-                   placeholder="Full Name (Only letters, period and spaces are allowed)" />
+                   placeholder="Full Name (Only letters, period and spaces are allowed)" required />
         </div>
         <div class="form-group">
             <label for="username">Username:</label> <span class="error"><?php echo $usernameError; ?></span>
             <input id="username" type="text" name="username" class="form-control" value="<?php echo $username; ?>"
-                   placeholder="Username, Only letters and numbers are allowed" />
+                   placeholder="Username, Only letters and numbers are allowed" required />
         </div>
         <div class="form-group">
             <label for="password">Password:</label> <span class="error"><?php echo $passwordError; ?></span>
             <input id="password" type="password" name="password" class="form-control"
-                   placeholder="Password(minimum length:5, maximum:12)" />
+                   placeholder="Password(minimum length:5, maximum:12)"required />
         </div>
         <div class="form-group">
             <label for="email">Email Id:</label> <span class="error"><?php echo $emailError; ?></span>
             <input id="email" type="email" name="email" class="form-control" value="<?php echo $email; ?>"
-             placeholder="yourname@something.domain" />
+             placeholder="yourname@something.domain" required />
         </div>
         <button type="submit" class="btn btn-primary">Sign Up!</button>
     </form>
